@@ -64,7 +64,7 @@ int bam_validate1(const bam_header_t *header, const bam1_t *b)
 const char *bam_get_library(bam_header_t *h, const bam1_t *b)
 {
     const uint8_t *rg = 0;
-    const uint8_t *pLibName;
+    static uint8_t *pLibName = 0;
     static uint8_t *pDict = 0;
     static bam_header_t *pHeader = 0;
     if ( b != 0 && h != 0 ) {
@@ -74,6 +74,7 @@ const char *bam_get_library(bam_header_t *h, const bam1_t *b)
             pDict = sam_header_parse2(h->text);
         }
         if ( (rg = bam_aux_get(b, "RG") ) != 0 ) {
+            if (pLibName) free(pLibName);
             pLibName = sam_header2tbl(pDict, "RG", "ID", "LB");
             if ( pLibName && strlen( (char*)pLibName ) > 0 ) {
                 return sam_tbl_get((void*)pLibName, (const char*)(rg + 1));
